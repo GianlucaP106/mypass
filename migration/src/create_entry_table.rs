@@ -15,7 +15,11 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Entry::Name).string().not_null())
                     .col(ColumnDef::new(Entry::Description).string())
                     .col(ColumnDef::new(Entry::Username).string())
-                    .col(ColumnDef::new(Entry::Password).string().not_null())
+                    .col(
+                        ColumnDef::new(Entry::Password)
+                            .blob(BlobSize::Tiny)
+                            .not_null(),
+                    )
                     .col(ColumnDef::new(Entry::Url).string())
                     .to_owned(),
             )

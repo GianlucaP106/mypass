@@ -1,6 +1,6 @@
 workspace = { members = ["api", "cli", "migration", "model"] }
 [package]
-name = "my-password"
+name = "mypass"
 version = "0.1.0"
 edition = "2021"
 

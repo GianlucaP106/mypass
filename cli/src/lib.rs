@@ -1,5 +1,9 @@
-mod commands;
+mod entries;
+mod entrypoint;
+mod master;
+mod util;
+mod view;
 
-pub async fn entrypoint() {
-    commands::handle()
+pub async fn run() {
+    entrypoint::run().await
 }

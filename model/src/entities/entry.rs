@@ -10,7 +10,9 @@ pub struct Model {
     pub name: String,
     pub description: Option<String>,
     pub username: Option<String>,
-    pub password: String,
+    #[sea_orm(column_type = "Binary(BlobSize::Blob(None))")]
+    pub password: Vec<u8>,
+    pub url: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

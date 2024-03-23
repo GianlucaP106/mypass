@@ -10,3 +10,4 @@ clap = { version = "4.5.3", features = ["derive"] }
 api = { path = "../api" }
 model = { path = "../model" }
 tokio = { version = "1.29.0", features = ["full"] }
+rpassword = "7.3.1"

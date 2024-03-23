@@ -1,3 +1,4 @@
 pub mod crypto;
-pub mod entry;
+pub mod entries;
+pub mod master;
 pub mod persistence;
