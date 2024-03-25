@@ -14,29 +14,47 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum RootCommands {
+    /// View passwowrd entries
     View {
+        /// The number of the entry to view
+        #[arg(short, long)]
+        number: Option<usize>,
+
+        /// Decrypt and reveal the password
+        #[arg(short, long)]
+        password: bool,
+
         #[command(subcommand)]
-        commands: ViewCommands,
+        commands: Option<ViewCommands>,
     },
 
+    /// Create a password entry
     Create {
+        /// The name of the entry
         #[arg(short, long)]
         name: Option<String>,
 
+        /// The description of the entry
         #[arg(short, long)]
         description: Option<String>,
 
+        /// A username associated to the password
         #[arg(short, long)]
         username: Option<String>,
 
+        /// A URL associated to the password
         #[arg(long)]
         url: Option<String>,
     },
 
+    /// Delete a password entry
     Delete {
+        /// The number of the entry to delete
         #[arg(short, long)]
         number: Option<usize>,
     },
+
+    /// Configures MyPass
     Config {
         #[command(subcommand)]
         commands: ConfigCommands,
@@ -45,18 +63,24 @@ enum RootCommands {
 
 #[derive(Subcommand)]
 enum ViewCommands {
+    /// View all password entries
     All,
+
+    /// View one password entry
     One {
+        /// The number of the entry to view
         #[arg(short, long)]
         number: Option<usize>,
 
+        /// Decrypt and reveal the password
         #[arg(short, long)]
-        view_password: bool,
+        password: bool,
     },
 }
 
 #[derive(Subcommand)]
 enum ConfigCommands {
+    /// Configure or view master
     Master,
 }
 
@@ -68,15 +92,32 @@ pub async fn run() {
     }
 
     match cli.command {
-        RootCommands::View { commands } => match commands {
-            ViewCommands::All => {
-                view_all_entries().await.ok();
-            }
-            ViewCommands::One {
-                number,
-                view_password,
-            } => {
-                view_entry(number, view_password).await.ok();
+        RootCommands::View {
+            commands,
+            number,
+            password,
+        } => match commands {
+            Some(command) => match command {
+                ViewCommands::All => {
+                    view_all_entries().await.ok();
+                }
+                ViewCommands::One {
+                    number,
+                    password: view_password,
+                } => {
+                    view_entry(number, view_password).await.ok();
+                }
+            },
+
+            None => {
+                if number.is_some() {
+                    view_entry(number, password).await.ok();
+                } else if password {
+                    println!("You may only specify password option with the number option `-n`");
+                    return;
+                } else {
+                    view_all_entries().await.ok();
+                }
             }
         },
         RootCommands::Create {
@@ -103,7 +144,7 @@ pub async fn run() {
 }
 
 async fn enforce_configured_master(cli: &Cli) -> Result<(), ()> {
-    // TODO: Btter way to do this?
+    // TODO: Btter way to do this
     if let RootCommands::Config {
         commands: ConfigCommands::Master,
     } = cli.command
