@@ -1,12 +1,13 @@
 # MyPass
 ### A simple, secure and user friendly CLI password manager
 
-<br>
 
 ## Overview
 Simple and user friendly CLI password manager. Uses good standards for encryption but not audited so use at your own risk. 
 Entirely local (no external communications). Useful to store secrets locally.
 ## Build from source
+
+>Building from source requires rust and cargo installed
 
 ```bash
 git clone https://github.com/GianlucaP106/mypass ~/.mypass/src \
