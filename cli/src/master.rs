@@ -1,6 +1,6 @@
 use model::entities::master;
 
-use crate::util;
+use crate::{util, view};
 
 pub struct AuthenticatedMaster {
     pub master: master::Model,
@@ -36,20 +36,12 @@ pub async fn create_master() -> Result<(), ()> {
     let master = api::master::create_master(master_password)
         .await
         .map_err(|e| println!("{}", e))?;
-    println!(
-        "Master {} | {} | {}",
-        master.id, master.name, master.password
-    );
+    view::print_master(master).map_err(|e| println!("{}", e))?;
     Ok(())
 }
 
 pub async fn view_master() -> Result<(), ()> {
     let master = prompt_authenticate().await?;
-    println!(
-        "Master {} | {} | {}",
-        master.master.id,
-        master.master.name,
-        "**********".to_owned()
-    );
+    view::print_master(master.master).map_err(|e| println!("{}", e))?;
     Ok(())
 }
