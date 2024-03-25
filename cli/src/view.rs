@@ -16,13 +16,20 @@ pub fn print_entry(
 }
 
 pub fn print_entries(entries: Vec<entry::Model>) -> Result<(), String> {
+    let empty = entries.is_empty();
     let table = entries
+        .clone()
         .iter()
         .enumerate()
         .map(|(index, item)| format_entry(item.to_owned(), index + 1, None))
         .table()
         .title(format_entry_title());
-    print_stdout(formate_table(table)).map_err(|_| "Error displaying")?;
+
+    if empty {
+        println!("No password entries. Create one with `mypass create`");
+    } else {
+        print_stdout(formate_table(table)).map_err(|_| "Error displaying")?;
+    }
     Ok(())
 }
 
