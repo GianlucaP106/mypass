@@ -30,8 +30,8 @@ pub async fn create_master(password: String) -> Result<master::Model, String> {
     let hashed_password = crypto::hash_password(password)?;
     let master = master::ActiveModel {
         id: Set(Uuid::new_v4().to_string()),
-        name: Set("Main".to_owned()),
-        description: Set(Some("Main".to_owned())),
+        name: Set("Main Master (Default)".to_owned()),
+        description: Set(Some("Master key to access your passwords".to_owned())),
         password: Set(hashed_password),
     };
     master.insert(&conn).await.map_err(|e| e.to_string())
