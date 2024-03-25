@@ -3,23 +3,14 @@ use model::entities::entry;
 
 use crate::{
     master::{prompt_authenticate, AuthenticatedMaster},
-    util,
+    util, view,
 };
 
 pub async fn view_all_entries() -> Result<(), ()> {
-    for (index, ele) in api::entries::get_all_entries()
+    let entries = api::entries::get_all_entries()
         .await
-        .map_err(|e| println!("{}", e))?
-        .iter()
-        .enumerate()
-    {
-        println!(
-            "Entry: {} | {} | {}",
-            index + 1,
-            ele.id.to_owned(),
-            ele.name.to_owned(),
-        )
-    }
+        .map_err(|e| println!("{}", e))?;
+    view::print_entries(entries).map_err(|e| println!("{}", e))?;
     Ok(())
 }
 
@@ -29,27 +20,24 @@ pub async fn view_entry(number: Option<usize>, view_pass: bool) -> Result<(), ()
     let entry = entry_by_number(number).await?;
     let password = if view_pass {
         let master: AuthenticatedMaster = prompt_authenticate().await?;
-        crypto::decrypt_password(
-            master.password,
-            entry.password,
-            entry.id.to_owned(),
-            master.master.id,
+        Some(
+            crypto::decrypt_password(
+                master.password,
+                entry.password.to_owned(),
+                entry.id.to_owned(),
+                master.master.id,
+            )
+            .map_err(|e| println!("{}", e))?,
         )
-        .map_err(|e| println!("{}", e))?
     } else {
-        "*********".to_owned()
+        None
     };
-    println!(
-        "Entry: {} | {} | {} | {}",
-        number,
-        entry.id.to_owned(),
-        entry.name.to_owned(),
-        password,
-    );
+    view::print_entry(entry, number, password).map_err(|e| println!("{}", e))?;
     Ok(())
 }
 
 pub async fn entry_by_number(number: usize) -> Result<entry::Model, ()> {
+    // TODO: put this number in the db
     let entries = api::entries::get_all_entries()
         .await
         .map_err(|e| println!("{}", e))?;
@@ -87,10 +75,7 @@ pub async fn create_entry(
     )
     .await
     .map_err(|e| println!("{}", e))?;
-    println!(
-        "Entry: {} | {} | {:?}",
-        entry.id, entry.name, entry.password
-    );
+    view::print_entry(entry, 1, None).map_err(|e| println!("{}", e))?;
     Ok(())
 }
 
