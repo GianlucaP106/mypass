@@ -1,7 +1,9 @@
 use clap::{Parser, Subcommand};
 
 use crate::{
-    entries::{create_entry, delete_entry, view_all_entries, view_entry},
+    entries::{
+        create_entry, delete_entry, export_entries, import_entries, view_all_entries, view_entry,
+    },
     master::{create_master, view_master},
 };
 
@@ -52,6 +54,20 @@ enum RootCommands {
         /// The number of the entry to delete
         #[arg(short, long)]
         number: Option<usize>,
+    },
+
+    /// Export entries as csv
+    Export {
+        /// Path to export (default is ~/.mypass/entries.csv)
+        #[arg(short, long)]
+        path: Option<String>,
+    },
+
+    /// Import entries as csv
+    Import {
+        /// Path to export (default is ~/.mypass/entries.csv)
+        #[arg(short, long)]
+        path: Option<String>,
     },
 
     /// Configures MyPass
@@ -127,6 +143,12 @@ pub async fn run() {
             url,
         } => {
             create_entry(name, description, username, url).await.ok();
+        }
+        RootCommands::Export { path } => {
+            export_entries(path).await.ok();
+        }
+        RootCommands::Import { path } => {
+            import_entries(path).await.ok();
         }
         RootCommands::Delete { number } => {
             delete_entry(number).await.ok();

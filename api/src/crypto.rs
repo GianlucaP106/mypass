@@ -57,7 +57,7 @@ pub fn decrypt_password(
         })
 }
 
-pub fn encrypted_password(
+pub fn encrypt_password(
     master_password: String,
     password: String,
     nonce: String,

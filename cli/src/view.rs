@@ -42,6 +42,11 @@ pub fn print_master(master: master::Model) -> Result<(), String> {
 }
 
 fn format_entry(entry: entry::Model, number: usize, password: Option<String>) -> Vec<CellStruct> {
+    let color = if password.is_some() {
+        Some(Color::Red)
+    } else {
+        Some(Color::White)
+    };
     vec![
         number.to_string().cell().justify(Justify::Center),
         entry.id.to_owned().cell(),
@@ -56,7 +61,7 @@ fn format_entry(entry: entry::Model, number: usize, password: Option<String>) ->
             .unwrap_or("**********".to_owned())
             .cell()
             .bold(true)
-            .foreground_color(Some(Color::Red)),
+            .foreground_color(color),
     ]
 }
 

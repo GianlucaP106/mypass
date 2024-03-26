@@ -29,7 +29,7 @@ pub async fn create_entry(
         validate_url(u.to_owned())?;
     }
 
-    let encrypted_password: Vec<u8> = crypto::encrypted_password(
+    let encrypted_password: Vec<u8> = crypto::encrypt_password(
         master_password.to_owned(),
         password.to_owned(),
         id.to_owned(),
