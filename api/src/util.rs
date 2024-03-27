@@ -1,5 +1,7 @@
 use std::{fs, path};
 
+use chrono::{Local, NaiveDateTime};
+
 pub fn create_file(p: String) -> Result<bool, String> {
     let path = path::Path::new(&p);
     if path.exists() {
@@ -11,4 +13,9 @@ pub fn create_file(p: String) -> Result<bool, String> {
     }
     fs::File::create(path).map_err(|_| "Failed to create file")?;
     Ok(true)
+}
+
+pub fn now() -> String {
+    let created_date: NaiveDateTime = Local::now().naive_local();
+    created_date.format("%Y-%m-%d %H:%M:%S").to_string()
 }

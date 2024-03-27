@@ -31,6 +31,10 @@ enum RootCommands {
         #[arg(short, long)]
         copy: bool,
 
+        /// Display all columns
+        #[arg(short, long)]
+        verbose: bool,
+
         #[command(subcommand)]
         commands: Option<ViewCommands>,
     },
@@ -108,7 +112,11 @@ enum RootCommands {
 #[derive(Subcommand)]
 enum ViewCommands {
     /// View all password entries
-    All,
+    All {
+        /// Display all columns
+        #[arg(short, long)]
+        verbose: bool,
+    },
 
     /// View one password entry
     One {
@@ -123,6 +131,10 @@ enum ViewCommands {
         /// Copy password to clipboard
         #[arg(short, long)]
         copy: bool,
+
+        /// Display all columns
+        #[arg(short, long)]
+        verbose: bool,
     },
 }
 
@@ -145,28 +157,30 @@ pub async fn run() {
             number,
             password,
             copy,
+            verbose,
         } => match commands {
             Some(command) => match command {
-                ViewCommands::All => {
-                    view_all_entries().await.ok();
+                ViewCommands::All { verbose } => {
+                    view_all_entries(verbose).await.ok();
                 }
                 ViewCommands::One {
                     number,
                     password,
                     copy,
+                    verbose,
                 } => {
-                    view_entry(number, password, copy).await.ok();
+                    view_entry(number, password, copy, verbose).await.ok();
                 }
             },
 
             None => {
                 if number.is_some() {
-                    view_entry(number, password, copy).await.ok();
+                    view_entry(number, password, copy, verbose).await.ok();
                 } else if password || copy {
                     println!("You may only specify the password or copy option with the number option `-n`");
                     return;
                 } else {
-                    view_all_entries().await.ok();
+                    view_all_entries(verbose).await.ok();
                 }
             }
         },
