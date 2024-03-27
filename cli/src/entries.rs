@@ -89,3 +89,24 @@ pub async fn delete_entry(number: Option<usize>) -> Result<(), ()> {
         .await
         .map_err(|e| println!("{}", e))
 }
+
+pub async fn export_entries(path: Option<String>) -> Result<(), ()> {
+    let path = util::unwrap_or_input(path, "Export path (default is ~/.mypass/entries.csv): ");
+    let master = prompt_authenticate().await?;
+
+    api::entry_transfer::export_entries(master.password, path)
+        .await
+        .map_err(|e| println!("{}", e))?;
+    println!("Export finished");
+    Ok(())
+}
+
+pub async fn import_entries(path: Option<String>) -> Result<(), ()> {
+    let path = util::unwrap_or_input(path, "Import path (default is ~/.mypass/entries.csv): ");
+    let master = prompt_authenticate().await?;
+    api::entry_transfer::import_entries(master.password, path)
+        .await
+        .map_err(|e| println!("{}", e))?;
+    println!("Import finished");
+    Ok(())
+}

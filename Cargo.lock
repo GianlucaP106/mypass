@@ -166,9 +166,11 @@ version = "0.1.0"
 dependencies = [
  "aes-gcm",
  "argon2",
+ "csv",
  "migration",
  "model",
  "sea-orm",
+ "serde",
  "url",
  "uuid",
 ]
