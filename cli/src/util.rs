@@ -27,16 +27,18 @@ pub fn get_input(prompt: &str) -> Result<String, String> {
     Ok(line.trim().to_owned())
 }
 
-pub fn unwrap_or_input(item: Option<String>, prompt: &str) -> Option<String> {
-    item.or_else(|| {
-        get_input(prompt).ok().and_then(|input| {
-            if input.trim().is_empty() {
-                None
-            } else {
-                Some(input)
-            }
-        })
+pub fn get_input_required(prompt: &str) -> Option<String> {
+    get_input(prompt).ok().and_then(|input| {
+        if input.trim().is_empty() {
+            None
+        } else {
+            Some(input)
+        }
     })
+}
+
+pub fn unwrap_or_input(item: Option<String>, prompt: &str) -> Option<String> {
+    item.or_else(|| get_input_required(prompt))
 }
 
 pub fn unwrap_or_input_number(

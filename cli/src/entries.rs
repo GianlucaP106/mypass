@@ -3,7 +3,8 @@ use model::entities::entry;
 
 use crate::{
     master::{prompt_authenticate, AuthenticatedMaster},
-    util, view,
+    util::{self, get_input_required},
+    view,
 };
 
 pub async fn view_all_entries(verbose: bool) -> Result<(), ()> {
@@ -69,6 +70,7 @@ pub async fn create_entry(
     let enter_a = |name: &str| -> String { format!("Enter a {} (skip to leave blank): ", name) };
     let name = util::unwrap_or_input(name, enter_a("name").as_ref());
     let description = util::unwrap_or_input(description, enter_a("description").as_ref());
+    let username = util::unwrap_or_input(username, enter_a("username").as_ref());
     let url = util::unwrap_or_input(url, enter_a("url").as_ref());
     let password: String = util::get_password_with_prompt("Enter a password: ")?;
     let password2: String = util::get_password_with_prompt("Retype the password: ")?;
@@ -91,6 +93,44 @@ pub async fn create_entry(
     Ok(())
 }
 
+pub async fn create_many() -> Result<(), ()> {
+    loop {
+        println!("\n");
+        println!("Control-c to stop");
+        println!("\n");
+        let enter_a =
+            |name: &str| -> String { format!("Enter a {} (skip to leave blank): ", name) };
+        let name = util::get_input_required(&enter_a("name"));
+        let description = util::get_input_required(&enter_a("description"));
+        let username = get_input_required(&enter_a("username"));
+        let url = util::get_input_required(&enter_a("url"));
+        let password: String = match util::get_password_with_prompt("Enter a password: ") {
+            Ok(p) => p,
+            Err(_) => continue,
+        };
+        let password2: String = match util::get_password_with_prompt("Retype the password: ") {
+            Ok(p) => p,
+            Err(_) => continue,
+        };
+        if password != password2 {
+            println!("Passwords must be the same");
+            return Err(());
+        }
+        let master: AuthenticatedMaster = prompt_authenticate().await?;
+        let entry = api::entries::create_entry(
+            master.password,
+            name.unwrap_or("Untitled".to_owned()),
+            description,
+            username,
+            password,
+            url,
+        )
+        .await
+        .map_err(|e| println!("{}", e))?;
+        view::print_entry(entry, 1, None, true).map_err(|e| println!("{}", e))?;
+    }
+}
+
 pub async fn update_entry(
     entry_number: Option<usize>,
     name: Option<String>,
@@ -104,6 +144,7 @@ pub async fn update_entry(
     let enter_a = |name: &str| -> String { format!("Enter a {} (skip to leave blank): ", name) };
     let name = util::unwrap_or_input(name, enter_a("name").as_ref());
     let description = util::unwrap_or_input(description, enter_a("description").as_ref());
+    let username = util::unwrap_or_input(username, enter_a("username").as_ref());
     let url = util::unwrap_or_input(url, enter_a("url").as_ref());
     let password = rpassword::prompt_password("Enter a password (skip to leave blank): ")
         .map_err(|_| println!("Failed to get password"))
