@@ -91,14 +91,14 @@ enum RootCommands {
         number: Option<usize>,
     },
 
-    /// Export entries as csv
+    /// Export entries to csv
     Export {
         /// Path to export (default is ~/.mypass/entries.csv)
         #[arg(short, long)]
         path: Option<String>,
     },
 
-    /// Import entries as csv
+    /// Import entries from csv
     Import {
         /// Path to export (default is ~/.mypass/entries.csv)
         #[arg(short, long)]
