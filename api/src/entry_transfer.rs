@@ -37,7 +37,7 @@ impl EntryRecord {
 }
 
 pub async fn export_entries(master_password: String, path: Option<String>) -> Result<(), String> {
-    let master = master::get_master().await.ok_or("Failed to get master")?;
+    let master = master::get_master().await?.ok_or("Failed to get master")?;
     let path_to_csv: Result<String, String> = path.map_or_else(
         || {
             let home_dir: String = env::var("HOME").map_err(|_| "HOME env var not set.")?;

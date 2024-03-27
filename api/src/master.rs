@@ -4,14 +4,13 @@ use model::entities::master;
 use model::entities::prelude::Master;
 use sea_orm::{self, prelude::Uuid, ActiveModelTrait, ActiveValue::Set, EntityTrait};
 
-pub async fn get_master() -> Option<master::Model> {
-    let conn = persistence::connect().await.expect("DB must be configured");
+pub async fn get_master() -> Result<Option<master::Model>, String> {
+    let conn = persistence::connect().await?;
     Master::find()
         .all(&conn)
         .await
-        .map_err(|e| panic!("{}", e))
+        .map_err(|_| "Failed to get master".to_owned())
         .map(|entries| entries.first().map(|t| t.to_owned()))
-        .ok()?
 
     // The above using match
     // match Master::find().all(&conn).await {
@@ -23,7 +22,7 @@ pub async fn get_master() -> Option<master::Model> {
 }
 
 pub async fn create_master(password: String) -> Result<master::Model, String> {
-    if get_master().await.is_some() {
+    if get_master().await?.is_some() {
         return Err("Master already configured".to_owned());
     }
     let conn = persistence::connect().await?;
@@ -38,7 +37,7 @@ pub async fn create_master(password: String) -> Result<master::Model, String> {
 }
 
 pub async fn authenticate_master(master_password: String) -> Result<master::Model, String> {
-    let master = match get_master().await {
+    let master = match get_master().await? {
         Some(master) => master,
         None => return Err("Master not configured. Please create a master key".to_owned()),
     };
@@ -49,6 +48,6 @@ pub async fn authenticate_master(master_password: String) -> Result<master::Mode
     }
 }
 
-pub async fn is_master_configured() -> bool {
-    get_master().await.is_some()
+pub async fn is_master_configured() -> Result<bool, String> {
+    Ok(get_master().await?.is_some())
 }

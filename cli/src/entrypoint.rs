@@ -214,10 +214,16 @@ pub async fn run() {
         }
         RootCommands::Config { commands } => match commands {
             ConfigCommands::Master => {
-                if api::master::is_master_configured().await {
-                    view_master().await.ok();
-                } else {
-                    create_master().await.ok();
+                let is_master_configured = api::master::is_master_configured()
+                    .await
+                    .map_err(|e| println!("{}", e))
+                    .ok();
+                if let Some(is_master_configured) = is_master_configured {
+                    if is_master_configured {
+                        view_master().await.ok();
+                    } else {
+                        create_master().await.ok();
+                    }
                 }
             }
         },
@@ -225,12 +231,15 @@ pub async fn run() {
 }
 
 async fn enforce_configured_master(cli: &Cli) -> Result<(), ()> {
+    let is_master_configured = api::master::is_master_configured()
+        .await
+        .map_err(|e| println!("{}", e))?;
     // TODO: Btter way to do this
     if let RootCommands::Config {
         commands: ConfigCommands::Master,
     } = cli.command
     {
-    } else if !api::master::is_master_configured().await {
+    } else if !is_master_configured {
         println!("Master is not configured. Please create a master key. (`mypass config master`)");
         return Err(());
     }
