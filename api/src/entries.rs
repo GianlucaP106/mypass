@@ -20,9 +20,8 @@ pub async fn create_entry(
 ) -> Result<entry::Model, String> {
     let con = persistence::connect().await?;
     let master = master::get_master()
-        .await
-        .expect("Master must be configured");
-
+        .await?
+        .ok_or("Master must be configured")?;
     let id = Uuid::new_v4().to_string();
 
     if let Some(u) = url.to_owned() {
@@ -94,7 +93,7 @@ pub async fn update_entry(
     if let Some(passwords) = passwords {
         let (master_password, new_password) = passwords;
         let master = master::get_master()
-            .await
+            .await?
             .ok_or("Master must be configured")?;
         let new_encrypted_password: Vec<u8> = crypto::encrypt_password(
             master_password.to_owned(),

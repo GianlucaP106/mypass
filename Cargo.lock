@@ -172,6 +172,7 @@ dependencies = [
  "model",
  "sea-orm",
  "serde",
+ "serde_json",
  "url",
  "uuid",
 ]
