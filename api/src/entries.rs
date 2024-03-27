@@ -18,7 +18,7 @@ pub async fn create_entry(
     password: String,
     url: Option<String>,
 ) -> Result<entry::Model, String> {
-    let con = persistence::connect().await;
+    let con = persistence::connect().await?;
     let master = master::get_master()
         .await
         .expect("Master must be configured");
@@ -60,7 +60,7 @@ pub async fn update_entry(
     url: Option<String>,
     passwords: Option<(String, String)>,
 ) -> Result<entry::Model, String> {
-    let con = persistence::connect().await;
+    let con = persistence::connect().await?;
     let mut entry: entry::ActiveModel = Entry::find_by_id(entry_id.to_owned())
         .one(&con)
         .await
@@ -117,7 +117,7 @@ pub async fn update_entry(
 }
 
 pub async fn delete_entry(entry_id: String) -> Result<(), String> {
-    let conn = persistence::connect().await;
+    let conn = persistence::connect().await?;
     let entry = Entry::find_by_id(entry_id)
         .one(&conn)
         .await
@@ -133,7 +133,7 @@ pub async fn delete_entry(entry_id: String) -> Result<(), String> {
 }
 
 pub async fn get_entry(entry_id: String) -> Result<entry::Model, String> {
-    let conn = persistence::connect().await;
+    let conn = persistence::connect().await?;
     Entry::find_by_id(entry_id)
         .one(&conn)
         .await
@@ -142,7 +142,7 @@ pub async fn get_entry(entry_id: String) -> Result<entry::Model, String> {
 }
 
 pub async fn get_all_entries() -> Result<Vec<entry::Model>, String> {
-    let con = persistence::connect().await;
+    let con = persistence::connect().await?;
     Entry::find()
         .all(&con)
         .await

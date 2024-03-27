@@ -5,7 +5,7 @@ use model::entities::prelude::Master;
 use sea_orm::{self, prelude::Uuid, ActiveModelTrait, ActiveValue::Set, EntityTrait};
 
 pub async fn get_master() -> Option<master::Model> {
-    let conn = persistence::connect().await;
+    let conn = persistence::connect().await.expect("DB must be configured");
     Master::find()
         .all(&conn)
         .await
@@ -26,7 +26,7 @@ pub async fn create_master(password: String) -> Result<master::Model, String> {
     if get_master().await.is_some() {
         return Err("Master already configured".to_owned());
     }
-    let conn = persistence::connect().await;
+    let conn = persistence::connect().await?;
     let hashed_password = crypto::hash_password(password)?;
     let master = master::ActiveModel {
         id: Set(Uuid::new_v4().to_string()),
