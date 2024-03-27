@@ -2,7 +2,8 @@ use clap::{Parser, Subcommand};
 
 use crate::{
     entries::{
-        create_entry, delete_entry, export_entries, import_entries, view_all_entries, view_entry,
+        create_entry, delete_entry, export_entries, import_entries, update_entry, view_all_entries,
+        view_entry,
     },
     master::{create_master, view_master},
 };
@@ -38,6 +39,29 @@ enum RootCommands {
     Create {
         /// The name of the entry
         #[arg(short, long)]
+        name: Option<String>,
+
+        /// The description of the entry
+        #[arg(short, long)]
+        description: Option<String>,
+
+        /// A username associated to the password
+        #[arg(short, long)]
+        username: Option<String>,
+
+        /// A URL associated to the password
+        #[arg(long)]
+        url: Option<String>,
+    },
+
+    /// Update a password entry
+    Update {
+        /// The number of the entry to update
+        #[arg(short, long)]
+        number: Option<usize>,
+
+        /// The name of the entry
+        #[arg(long)]
         name: Option<String>,
 
         /// The description of the entry
@@ -153,6 +177,17 @@ pub async fn run() {
             url,
         } => {
             create_entry(name, description, username, url).await.ok();
+        }
+        RootCommands::Update {
+            number,
+            name,
+            description,
+            username,
+            url,
+        } => {
+            update_entry(number, name, description, username, url)
+                .await
+                .ok();
         }
         RootCommands::Export { path } => {
             export_entries(path).await.ok();

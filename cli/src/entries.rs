@@ -48,7 +48,7 @@ pub async fn view_entry(
 }
 
 pub async fn entry_by_number(number: usize) -> Result<entry::Model, ()> {
-    // TODO: put this number in the db
+    // TODO:find a better way to do this
     let entries = api::entries::get_all_entries()
         .await
         .map_err(|e| println!("{}", e))?;
@@ -87,6 +87,47 @@ pub async fn create_entry(
     .await
     .map_err(|e| println!("{}", e))?;
     view::print_entry(entry, 1, None).map_err(|e| println!("{}", e))?;
+    Ok(())
+}
+
+pub async fn update_entry(
+    entry_number: Option<usize>,
+    name: Option<String>,
+    description: Option<String>,
+    username: Option<String>,
+    url: Option<String>,
+) -> Result<(), ()> {
+    let number =
+        util::unwrap_or_input_number(entry_number, "Enter entry number: ", "Invalid entry number")?;
+    let entry = entry_by_number(number).await?;
+    let enter_a = |name: &str| -> String { format!("Enter a {} (skip to leave blank): ", name) };
+    let name = util::unwrap_or_input(name, enter_a("name").as_ref());
+    let description = util::unwrap_or_input(description, enter_a("description").as_ref());
+    let url = util::unwrap_or_input(url, enter_a("url").as_ref());
+    let password = rpassword::prompt_password("Enter a password (skip to leave blank): ")
+        .map_err(|_| println!("Failed to get password"))
+        .ok()
+        .and_then(|p| if p.trim().is_empty() { None } else { Some(p) });
+    let password: Option<String> = if let Some(p) = password {
+        let retyped = util::get_password_with_prompt("Retype new password: ")?;
+        if retyped != p {
+            println!("Passwords must be the same");
+            return Err(());
+        }
+        Some(p)
+    } else {
+        None
+    };
+    let passwords: Option<(String, String)> = if let Some(p) = password {
+        let master: AuthenticatedMaster = prompt_authenticate().await?;
+        Some((master.password, p))
+    } else {
+        None
+    };
+    let entry = api::entries::update_entry(entry.id, name, description, username, url, passwords)
+        .await
+        .map_err(|e| println!("{}", e))?;
+    view::print_entry(entry, number, None).map_err(|e| println!("{}", e))?;
     Ok(())
 }
 
