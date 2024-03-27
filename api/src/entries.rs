@@ -47,15 +47,16 @@ pub async fn create_entry(
     ent.insert(&con).await.map_err(|e| e.to_string())
 }
 
-pub async fn modify_entry(
+pub async fn update_entry(
     entry_id: String,
     name: Option<String>,
     description: Option<String>,
     username: Option<String>,
     url: Option<String>,
+    passwords: Option<(String, String)>,
 ) -> Result<entry::Model, String> {
     let con = persistence::connect().await;
-    let mut entry: entry::ActiveModel = Entry::find_by_id(entry_id)
+    let mut entry: entry::ActiveModel = Entry::find_by_id(entry_id.to_owned())
         .one(&con)
         .await
         .map_err(|_| "Error modifying entry")?
@@ -77,6 +78,20 @@ pub async fn modify_entry(
     if let Some(url) = url {
         validate_url(url.to_owned())?;
         entry.url = Set(Some(url));
+    }
+
+    if let Some(passwords) = passwords {
+        let (master_password, new_password) = passwords;
+        let master = master::get_master()
+            .await
+            .ok_or("Master must be configured")?;
+        let new_encrypted_password: Vec<u8> = crypto::encrypt_password(
+            master_password.to_owned(),
+            new_password.to_owned(),
+            entry_id,
+            master.id.to_owned(),
+        )?;
+        entry.password = Set(new_encrypted_password)
     }
 
     entry
