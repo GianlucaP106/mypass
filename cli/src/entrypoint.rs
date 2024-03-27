@@ -26,6 +26,10 @@ enum RootCommands {
         #[arg(short, long)]
         password: bool,
 
+        /// Copy password to clipboard
+        #[arg(short, long)]
+        copy: bool,
+
         #[command(subcommand)]
         commands: Option<ViewCommands>,
     },
@@ -91,6 +95,10 @@ enum ViewCommands {
         /// Decrypt and reveal the password
         #[arg(short, long)]
         password: bool,
+
+        /// Copy password to clipboard
+        #[arg(short, long)]
+        copy: bool,
     },
 }
 
@@ -112,6 +120,7 @@ pub async fn run() {
             commands,
             number,
             password,
+            copy,
         } => match commands {
             Some(command) => match command {
                 ViewCommands::All => {
@@ -119,17 +128,18 @@ pub async fn run() {
                 }
                 ViewCommands::One {
                     number,
-                    password: view_password,
+                    password,
+                    copy,
                 } => {
-                    view_entry(number, view_password).await.ok();
+                    view_entry(number, password, copy).await.ok();
                 }
             },
 
             None => {
                 if number.is_some() {
-                    view_entry(number, password).await.ok();
-                } else if password {
-                    println!("You may only specify password option with the number option `-n`");
+                    view_entry(number, password, copy).await.ok();
+                } else if password || copy {
+                    println!("You may only specify the password or copy option with the number option `-n`");
                     return;
                 } else {
                     view_all_entries().await.ok();

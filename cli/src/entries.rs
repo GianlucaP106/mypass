@@ -14,11 +14,15 @@ pub async fn view_all_entries() -> Result<(), ()> {
     Ok(())
 }
 
-pub async fn view_entry(number: Option<usize>, view_pass: bool) -> Result<(), ()> {
+pub async fn view_entry(
+    number: Option<usize>,
+    view_pass: bool,
+    copy_to_clipboard: bool,
+) -> Result<(), ()> {
     let number =
         util::unwrap_or_input_number(number, "Enter entry number: ", "Invalid entry number")?;
     let entry = entry_by_number(number).await?;
-    let password = if view_pass {
+    let decrypted_password = if view_pass || copy_to_clipboard {
         let master: AuthenticatedMaster = prompt_authenticate().await?;
         Some(
             crypto::decrypt_password(
@@ -32,7 +36,14 @@ pub async fn view_entry(number: Option<usize>, view_pass: bool) -> Result<(), ()
     } else {
         None
     };
-    view::print_entry(entry, number, password).map_err(|e| println!("{}", e))?;
+
+    if copy_to_clipboard {
+        util::copy_to_clipboard(decrypted_password.to_owned().unwrap())
+            .map_err(|e| println!("{}", e))?;
+    }
+
+    let decrypted_password = if view_pass { decrypted_password } else { None };
+    view::print_entry(entry, number, decrypted_password).map_err(|e| println!("{}", e))?;
     Ok(())
 }
 

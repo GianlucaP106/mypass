@@ -53,3 +53,7 @@ pub fn unwrap_or_input_number(
     })
     .ok_or_else(|| println!("{}", err_msg))
 }
+
+pub fn copy_to_clipboard(item: String) -> Result<(), String> {
+    cli_clipboard::set_contents(item).map_err(|_| "Failed to copy to clip board".to_owned())
+}
