@@ -4,11 +4,11 @@ use sea_orm::IntoActiveModel;
 use sea_orm::{self, prelude::Uuid, ActiveModelTrait, ActiveValue::Set, EntityTrait};
 use url::Url;
 
-use crate::master;
 use crate::{
     crypto::{self},
     persistence,
 };
+use crate::{master, util};
 
 pub async fn create_entry(
     master_password: String,
@@ -36,6 +36,9 @@ pub async fn create_entry(
         master.id.to_owned(),
     )?;
 
+    let created_date = util::now();
+    let modified_date = created_date.to_owned();
+
     let ent = entry::ActiveModel {
         id: Set(id),
         name: Set(name),
@@ -43,6 +46,8 @@ pub async fn create_entry(
         url: Set(url),
         username: Set(username),
         password: Set(encrypted_password),
+        created_date: Set(created_date),
+        modified_date: Set(modified_date),
     };
     ent.insert(&con).await.map_err(|e| e.to_string())
 }
@@ -63,21 +68,27 @@ pub async fn update_entry(
         .ok_or("Error modifying entry")?
         .into_active_model();
 
+    let mut is_modified = false;
+
     if let Some(name) = name {
         entry.name = Set(name);
+        is_modified = true;
     }
 
     if let Some(description) = description {
         entry.description = Set(Some(description));
+        is_modified = true;
     }
 
     if let Some(username) = username {
-        entry.username = Set(Some(username))
+        entry.username = Set(Some(username));
+        is_modified = true;
     }
 
     if let Some(url) = url {
         validate_url(url.to_owned())?;
         entry.url = Set(Some(url));
+        is_modified = true;
     }
 
     if let Some(passwords) = passwords {
@@ -92,6 +103,11 @@ pub async fn update_entry(
             master.id.to_owned(),
         )?;
         entry.password = Set(new_encrypted_password)
+    }
+
+    if is_modified {
+        let modified_date = util::now();
+        entry.modified_date = Set(modified_date);
     }
 
     entry

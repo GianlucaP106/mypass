@@ -6,11 +6,11 @@ use crate::{
     util, view,
 };
 
-pub async fn view_all_entries() -> Result<(), ()> {
+pub async fn view_all_entries(verbose: bool) -> Result<(), ()> {
     let entries = api::entries::get_all_entries()
         .await
         .map_err(|e| println!("{}", e))?;
-    view::print_entries(entries).map_err(|e| println!("{}", e))?;
+    view::print_entries(entries, verbose).map_err(|e| println!("{}", e))?;
     Ok(())
 }
 
@@ -18,6 +18,7 @@ pub async fn view_entry(
     number: Option<usize>,
     view_pass: bool,
     copy_to_clipboard: bool,
+    verbose: bool,
 ) -> Result<(), ()> {
     let number =
         util::unwrap_or_input_number(number, "Enter entry number: ", "Invalid entry number")?;
@@ -43,7 +44,7 @@ pub async fn view_entry(
     }
 
     let decrypted_password = if view_pass { decrypted_password } else { None };
-    view::print_entry(entry, number, decrypted_password).map_err(|e| println!("{}", e))?;
+    view::print_entry(entry, number, decrypted_password, verbose).map_err(|e| println!("{}", e))?;
     Ok(())
 }
 
@@ -86,7 +87,7 @@ pub async fn create_entry(
     )
     .await
     .map_err(|e| println!("{}", e))?;
-    view::print_entry(entry, 1, None).map_err(|e| println!("{}", e))?;
+    view::print_entry(entry, 1, None, true).map_err(|e| println!("{}", e))?;
     Ok(())
 }
 
@@ -127,7 +128,7 @@ pub async fn update_entry(
     let entry = api::entries::update_entry(entry.id, name, description, username, url, passwords)
         .await
         .map_err(|e| println!("{}", e))?;
-    view::print_entry(entry, number, None).map_err(|e| println!("{}", e))?;
+    view::print_entry(entry, number, None, true).map_err(|e| println!("{}", e))?;
     Ok(())
 }
 

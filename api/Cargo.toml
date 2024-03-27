@@ -13,6 +13,7 @@ argon2 = "0.5.3"
 url = "2.5.0"
 csv = "1.3.0"
 serde = "1.0.197"
+chrono = "0.4.37"
 
 [dependencies.sea-orm]
 version = "0.12.4"                                 # sea-orm version

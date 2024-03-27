@@ -21,6 +21,8 @@ impl MigrationTrait for Migration {
                             .not_null(),
                     )
                     .col(ColumnDef::new(Entry::Url).string())
+                    .col(ColumnDef::new(Entry::CreatedDate).date_time().not_null())
+                    .col(ColumnDef::new(Entry::ModifiedDate).date_time().not_null())
                     .to_owned(),
             )
             .await
@@ -42,4 +44,6 @@ enum Entry {
     Username,
     Password,
     Url,
+    CreatedDate,
+    ModifiedDate,
 }
