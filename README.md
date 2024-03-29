@@ -14,12 +14,7 @@ Entirely local (no external communications). Useful to store secrets locally.
 >Building from source requires rust and cargo installed
 
 ```bash
-rm -rf ~/.mypass/src \
-    && git clone --depth 1 https://github.com/GianlucaP106/mypass ~/.mypass/src \
-    && cd ~/.mypass/src \
-    && cargo build -r \
-    && cp ./target/release/mypass .. \
-    && cd ~/.mypass
+curl -fsSL https://raw.githubusercontent.com/GianlucaP106/mypass/main/install.sh | bash
 ```
 
 ### Add to PATH
