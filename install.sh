@@ -15,4 +15,4 @@ rm -rf "src.zip"
 
 cd "src/mypass-${VERSION}"
 cargo build -r
-cp ./target/release/mypass ..
+cp ./target/release/mypass ../..
