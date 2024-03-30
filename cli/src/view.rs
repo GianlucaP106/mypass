@@ -89,7 +89,7 @@ fn format_entry_title(verbose: bool) -> Vec<CellStruct> {
     }
     title.push("Name".to_owned().cell());
     title.push("Description".to_owned().cell());
-    title.push("Entry number".to_owned().cell());
+    title.push("URL".to_owned().cell());
     title.push("Password".to_owned().cell());
     title
 }
