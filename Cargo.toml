@@ -1,12 +1,12 @@
 workspace = { members = ["api", "cli", "migration", "model"] }
 [package]
 name = "mypass"
-version = "0.1.0"
+version = "0.1.2"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-cli = { path = "./cli" }
+mypass_cli = { path = "./cli" }
 api = { path = "./api" }
 tokio = { version = "1.29.0", features = ["full"] }
