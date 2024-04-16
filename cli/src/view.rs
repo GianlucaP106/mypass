@@ -12,7 +12,7 @@ pub fn print_entry(
     let table = vec![format_entry(entry, number, password, verbose)]
         .table()
         .title(format_entry_title(verbose));
-    print_stdout(formate_table(table)).map_err(|_| "Error displaying")?;
+    print_stdout(format_table(table)).map_err(|_| "Error displaying")?;
     Ok(())
 }
 
@@ -29,7 +29,7 @@ pub fn print_entries(entries: Vec<entry::Model>, verbose: bool) -> Result<(), St
     if empty {
         println!("No password entries. Create one with `mypass create`");
     } else {
-        print_stdout(formate_table(table)).map_err(|_| "Error displaying")?;
+        print_stdout(format_table(table)).map_err(|_| "Error displaying")?;
     }
     Ok(())
 }
@@ -38,7 +38,17 @@ pub fn print_master(master: master::Model) -> Result<(), String> {
     let table = vec![format_master(master)]
         .table()
         .title(format_master_title());
-    print_stdout(formate_table(table)).map_err(|_| "Error displaying")?;
+    print_stdout(format_table(table)).map_err(|_| "Error displaying")?;
+    Ok(())
+}
+
+pub fn print_path(master: master::Model, path: String) -> Result<(), String> {
+    let mut title = format_master_title();
+    title.push("Path to data store".to_owned().cell());
+    let mut table = format_master(master);
+    table.push(path.cell());
+    let table = vec![table].table().title(title);
+    print_stdout(format_table(table)).map_err(|_| "Error displaying")?;
     Ok(())
 }
 
@@ -109,6 +119,6 @@ fn format_master_title() -> Vec<CellStruct> {
     vec!["Name".to_owned().cell(), "Description".to_owned().cell()]
 }
 
-fn formate_table(table: TableStruct) -> TableStruct {
+fn format_table(table: TableStruct) -> TableStruct {
     table.foreground_color(Some(Color::Rgb(136, 192, 205)))
 }

@@ -45,3 +45,17 @@ pub async fn view_master() -> Result<(), ()> {
     view::print_master(master.master).map_err(|e| println!("{}", e))?;
     Ok(())
 }
+
+pub async fn view_path() -> Result<(), ()> {
+    let master = api::master::get_master()
+        .await
+        .map_err(|_| println!("Failed to retrieve master"))?
+        .unwrap();
+
+    let path = api::persistence::get_path_to_db()
+        .map_err(|_| println!("Failed to retrive path"))
+        .unwrap();
+
+    view::print_path(master, path).map_err(|e| println!("{}", e))?;
+    Ok(())
+}
