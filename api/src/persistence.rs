@@ -29,7 +29,7 @@ pub struct Configuration {
     db: String,
 }
 
-fn get_path_to_db() -> Result<String, String> {
+pub fn get_path_to_db() -> Result<String, String> {
     let home_dir: String = env::var("HOME").map_err(|_| "HOME env var not set.")?;
     let path_to_config = format!("{}/{}", home_dir, String::from(".mypass/config.json"));
     let is_new = util::create_file(path_to_config.to_owned())?;

@@ -5,7 +5,7 @@ use crate::{
         create_entry, create_many, delete_entry, export_entries, import_entries, update_entry,
         view_all_entries, view_entry,
     },
-    master::{create_master, view_master},
+    master::{create_master, view_master, view_path},
 };
 
 #[derive(Parser)]
@@ -149,6 +149,8 @@ enum CreateCommands {
 
 #[derive(Subcommand)]
 enum ConfigCommands {
+    /// View Path to data store
+    Path,
     /// Configure or view master
     Master,
 }
@@ -230,6 +232,9 @@ pub async fn run() {
             delete_entry(number).await.ok();
         }
         RootCommands::Config { commands } => match commands {
+            ConfigCommands::Path => {
+                view_path().await.ok();
+            }
             ConfigCommands::Master => {
                 let is_master_configured = api::master::is_master_configured()
                     .await
