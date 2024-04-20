@@ -1,4 +1,6 @@
-use std::io::Write;
+use std::{fmt::Display, io::Write};
+
+use api::error::Error;
 
 pub fn get_master_password() -> Result<String, ()> {
     get_password_with_prompt("Master Password: ")
@@ -17,13 +19,12 @@ pub fn get_password_with_prompt(prompt: &str) -> Result<String, ()> {
         .map_err(|_| println!("Password is required"))
 }
 
-pub fn get_input(prompt: &str) -> Result<String, String> {
+pub fn get_input(prompt: &str) -> Result<String, Error> {
     print!("{}", prompt);
-    std::io::stdout().flush().map_err(|_| "Error in prompt")?;
+    let err = "Failed to get input from console";
+    std::io::stdout().flush().map_err(|_| err)?;
     let mut line = String::new();
-    std::io::stdin()
-        .read_line(&mut line)
-        .map_err(|_| "Unable to get input")?;
+    std::io::stdin().read_line(&mut line).map_err(|_| err)?;
     Ok(line.trim().to_owned())
 }
 
@@ -48,7 +49,7 @@ pub fn unwrap_or_input_number(
 ) -> Result<usize, ()> {
     item.or_else(|| {
         get_input(prompt)
-            .map_err(|e| println!("{}", e))
+            .print_err()
             .ok()
             .and_then(|val| val.parse::<usize>().ok())
             .and_then(|val| if val > 0 { Some(val) } else { None })
@@ -56,6 +57,16 @@ pub fn unwrap_or_input_number(
     .ok_or_else(|| println!("{}", err_msg))
 }
 
-pub fn copy_to_clipboard(item: String) -> Result<(), String> {
-    cli_clipboard::set_contents(item).map_err(|_| "Failed to copy to clip board".to_owned())
+pub fn copy_to_clipboard(item: String) -> Result<(), Error> {
+    cli_clipboard::set_contents(item).map_err(|_| "Failed to copy to clipboard".to_owned())
+}
+
+pub trait PrintError<T, E> {
+    fn print_err(self) -> Result<T, ()>;
+}
+
+impl<T, E: Display> PrintError<T, E> for Result<T, E> {
+    fn print_err(self) -> Result<T, ()> {
+        self.map_err(|e| println!("{}", e))
+    }
 }

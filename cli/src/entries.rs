@@ -3,16 +3,13 @@ use model::entities::entry;
 
 use crate::{
     master::{prompt_authenticate, AuthenticatedMaster},
-    util::{self, get_input_required},
+    util::{self, get_input_required, PrintError},
     view,
 };
 
 pub async fn view_all_entries(verbose: bool) -> Result<(), ()> {
-    let entries = api::entries::get_all_entries()
-        .await
-        .map_err(|e| println!("{}", e))?;
-    view::print_entries(entries, verbose).map_err(|e| println!("{}", e))?;
-    Ok(())
+    let entries = api::entries::get_all_entries().await.print_err()?;
+    view::print_entries(entries, verbose).print_err()
 }
 
 pub async fn view_entry(
@@ -33,28 +30,23 @@ pub async fn view_entry(
                 entry.id.to_owned(),
                 master.master.id,
             )
-            .map_err(|e| println!("{}", e))?,
+            .print_err()?,
         )
     } else {
         None
     };
 
     if copy_to_clipboard {
-        util::copy_to_clipboard(decrypted_password.to_owned().unwrap())
-            .map_err(|e| println!("{}", e))?;
+        util::copy_to_clipboard(decrypted_password.to_owned().unwrap()).print_err()?;
     }
 
     let decrypted_password = if view_pass { decrypted_password } else { None };
-    view::print_entry(entry, number, decrypted_password, verbose).map_err(|e| println!("{}", e))?;
+    view::print_entry(entry, number, decrypted_password, verbose).print_err()?;
     Ok(())
 }
 
 pub async fn entry_by_number(number: usize) -> Result<entry::Model, ()> {
-    // TODO:find a better way to do this
-    let entries = api::entries::get_all_entries()
-        .await
-        .map_err(|e| println!("{}", e))?;
-
+    let entries = api::entries::get_all_entries().await.print_err()?;
     if number == 0 || number > entries.len() {
         return Err(());
     }
@@ -88,8 +80,8 @@ pub async fn create_entry(
         url,
     )
     .await
-    .map_err(|e| println!("{}", e))?;
-    view::print_entry(entry, 1, None, true).map_err(|e| println!("{}", e))?;
+    .print_err()?;
+    view::print_entry(entry, 1, None, true).print_err()?;
     Ok(())
 }
 
@@ -126,8 +118,8 @@ pub async fn create_many() -> Result<(), ()> {
             url,
         )
         .await
-        .map_err(|e| println!("{}", e))?;
-        view::print_entry(entry, 1, None, true).map_err(|e| println!("{}", e))?;
+        .print_err()?;
+        view::print_entry(entry, 1, None, true).print_err()?;
     }
 }
 
@@ -168,8 +160,8 @@ pub async fn update_entry(
     };
     let entry = api::entries::update_entry(entry.id, name, description, username, url, passwords)
         .await
-        .map_err(|e| println!("{}", e))?;
-    view::print_entry(entry, number, None, true).map_err(|e| println!("{}", e))?;
+        .print_err()?;
+    view::print_entry(entry, number, None, true).print_err()?;
     Ok(())
 }
 
@@ -181,7 +173,7 @@ pub async fn delete_entry(number: Option<usize>) -> Result<(), ()> {
 
     api::entries::delete_entry(entry.id.to_owned())
         .await
-        .map_err(|e| println!("{}", e))
+        .print_err()
 }
 
 pub async fn export_entries(path: Option<String>) -> Result<(), ()> {
@@ -190,7 +182,7 @@ pub async fn export_entries(path: Option<String>) -> Result<(), ()> {
 
     api::entry_transfer::export_entries(master.password, path)
         .await
-        .map_err(|e| println!("{}", e))?;
+        .print_err()?;
     println!("Export finished");
     Ok(())
 }
@@ -200,7 +192,7 @@ pub async fn import_entries(path: Option<String>) -> Result<(), ()> {
     let master = prompt_authenticate().await?;
     api::entry_transfer::import_entries(master.password, path)
         .await
-        .map_err(|e| println!("{}", e))?;
+        .print_err()?;
     println!("Import finished");
     Ok(())
 }

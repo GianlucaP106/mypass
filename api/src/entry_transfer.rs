@@ -1,10 +1,9 @@
-use std::env;
-
 use model::entities;
 
 use crate::{
     crypto,
     entries::{self, create_entry},
+    error::Error,
     master, util,
 };
 use serde::{Deserialize, Serialize};
@@ -23,7 +22,7 @@ impl EntryRecord {
         entry: entities::entry::Model,
         master: entities::master::Model,
         master_password: String,
-    ) -> Result<EntryRecord, String> {
+    ) -> Result<EntryRecord, Error> {
         let decrypted_password =
             crypto::decrypt_password(master_password, entry.password, entry.id, master.id)?;
         Ok(EntryRecord {
@@ -36,21 +35,21 @@ impl EntryRecord {
     }
 }
 
-pub async fn export_entries(master_password: String, path: Option<String>) -> Result<(), String> {
-    let master = master::get_master().await?.ok_or("Failed to get master")?;
-    let path_to_csv: Result<String, String> = path.map_or_else(
+pub async fn export_entries(master_password: String, path: Option<String>) -> Result<(), Error> {
+    let master = master::require_master().await?;
+    let path_to_csv: Result<String, Error> = path.map_or_else(
         || {
-            let home_dir: String = env::var("HOME").map_err(|_| "HOME env var not set.")?;
+            let home_dir: String = util::get_home_env_var()?;
             let p = format!("{}/{}", home_dir, String::from(".mypass/entries.csv"));
             Ok(p)
         },
         Ok,
     );
+    let err = "Failed to write to csv";
     let path_to_csv: String = path_to_csv?;
     util::create_file(path_to_csv.to_owned())?;
     let entries: Vec<entities::entry::Model> = entries::get_all_entries().await?;
-    let mut wtr =
-        csv::Writer::from_path(path_to_csv).map_err(|_| "Error writing to csv".to_owned())?;
+    let mut wtr = csv::Writer::from_path(path_to_csv).map_err(|_| err.to_owned())?;
 
     let mut out: Vec<EntryRecord> = Vec::new();
     for ele in entries {
@@ -65,14 +64,14 @@ pub async fn export_entries(master_password: String, path: Option<String>) -> Re
         wtr.serialize(entry).ok();
     });
 
-    wtr.flush().map_err(|_| "Error writing to csv")?;
+    wtr.flush().map_err(|_| err)?;
     Ok(())
 }
 
-pub async fn import_entries(master_password: String, path: Option<String>) -> Result<(), String> {
-    let path_to_csv: Result<String, String> = path.map_or_else(
+pub async fn import_entries(master_password: String, path: Option<String>) -> Result<(), Error> {
+    let path_to_csv: Result<String, Error> = path.map_or_else(
         || {
-            let home_dir: String = env::var("HOME").map_err(|_| "HOME env var not set.")?;
+            let home_dir = util::get_home_env_var()?;
             let p = format!("{}/{}", home_dir, String::from(".mypass/entries.csv"));
             Ok(p)
         },
