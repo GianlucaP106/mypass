@@ -65,11 +65,6 @@ pub async fn create_entry(
     let username = util::unwrap_or_input(username, enter_a("username").as_ref());
     let url = util::unwrap_or_input(url, enter_a("url").as_ref());
     let password: String = util::get_password_with_prompt("Enter a password: ")?;
-    let password2: String = util::get_password_with_prompt("Retype the password: ")?;
-    if password != password2 {
-        println!("Passwords must be the same");
-        return Err(());
-    }
     let master: AuthenticatedMaster = prompt_authenticate().await?;
     let entry = api::entries::create_entry(
         master.password,
@@ -86,6 +81,7 @@ pub async fn create_entry(
 }
 
 pub async fn create_many() -> Result<(), ()> {
+    let mut m: Option<AuthenticatedMaster> = None;
     loop {
         println!("\n");
         println!("Control-c to stop");
@@ -100,15 +96,12 @@ pub async fn create_many() -> Result<(), ()> {
             Ok(p) => p,
             Err(_) => continue,
         };
-        let password2: String = match util::get_password_with_prompt("Retype the password: ") {
-            Ok(p) => p,
-            Err(_) => continue,
+        let master: AuthenticatedMaster = if let Some(m) = m {
+            m
+        } else {
+            prompt_authenticate().await?
         };
-        if password != password2 {
-            println!("Passwords must be the same");
-            return Err(());
-        }
-        let master: AuthenticatedMaster = prompt_authenticate().await?;
+        m = Some(master.clone());
         let entry = api::entries::create_entry(
             master.password,
             name.unwrap_or("Untitled".to_owned()),

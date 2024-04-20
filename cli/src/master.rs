@@ -5,6 +5,7 @@ use crate::{
     view,
 };
 
+#[derive(Clone)]
 pub struct AuthenticatedMaster {
     pub master: master::Model,
     pub password: String,
