@@ -31,6 +31,14 @@ enum RootCommands {
         #[arg(short, long)]
         copy: bool,
 
+        /// Copy username to clipboard
+        #[arg(long = "cusr")]
+        copy_username: bool,
+
+        /// Copy url to clipboard
+        #[arg(long = "curl")]
+        copy_url: bool,
+
         /// Display all columns
         #[arg(short, long)]
         verbose: bool,
@@ -131,9 +139,17 @@ enum ViewCommands {
         #[arg(short, long)]
         password: bool,
 
-        /// Copy password to clipboard
+        /// Copy password, username or url to clipboard
         #[arg(short, long)]
         copy: bool,
+
+        /// Copy username to clipboard
+        #[arg(long = "cusr")]
+        copy_username: bool,
+
+        /// Copy url to clipboard
+        #[arg(long = "curl")]
+        copy_url: bool,
 
         /// Display all columns
         #[arg(short, long)]
@@ -168,6 +184,8 @@ pub async fn run() {
             number,
             password,
             copy,
+            copy_username,
+            copy_url,
             verbose,
         } => match commands {
             Some(command) => match command {
@@ -178,15 +196,20 @@ pub async fn run() {
                     number,
                     password,
                     copy,
+                    copy_username,
+                    copy_url,
                     verbose,
                 } => {
-                    view_entry(number, password, copy, verbose).await.ok();
+                    view_entry(number, password, copy, copy_username, copy_url, verbose)
+                        .await
+                        .ok();
                 }
             },
-
             None => {
                 if number.is_some() {
-                    view_entry(number, password, copy, verbose).await.ok();
+                    view_entry(number, password, copy, copy_username, copy_url, verbose)
+                        .await
+                        .ok();
                 } else if password || copy {
                     println!("You may only specify the password or copy option with the number option `-n`");
                     return;

@@ -15,13 +15,16 @@ pub async fn view_all_entries(verbose: bool) -> Result<(), ()> {
 pub async fn view_entry(
     number: Option<usize>,
     view_pass: bool,
-    copy_to_clipboard: bool,
+    copy_password: bool,
+    copy_username: bool,
+    copy_url: bool,
     verbose: bool,
 ) -> Result<(), ()> {
     let number =
         util::unwrap_or_input_number(number, "Enter entry number: ", "Invalid entry number")?;
     let entry = entry_by_number(number).await?;
-    let decrypted_password = if view_pass || copy_to_clipboard {
+
+    let decrypted_password = if view_pass || copy_password {
         let master: AuthenticatedMaster = prompt_authenticate().await?;
         Some(
             crypto::decrypt_password(
@@ -36,9 +39,23 @@ pub async fn view_entry(
         None
     };
 
-    if copy_to_clipboard {
-        util::copy_to_clipboard(decrypted_password.to_owned().unwrap()).print_err()?;
-    }
+    let item_to_copy: Option<String> = if copy_password {
+        if copy_username || copy_url {
+            println!("Only copying password");
+        }
+        decrypted_password.to_owned()
+    } else if copy_username {
+        if copy_url {
+            println!("Only copying username");
+        }
+        entry.username.to_owned()
+    } else if copy_url {
+        entry.url.to_owned()
+    } else {
+        None
+    };
+
+    item_to_copy.map(util::copy_to_clipboard);
 
     let decrypted_password = if view_pass { decrypted_password } else { None };
     view::print_entry(entry, number, decrypted_password, verbose).print_err()?;
