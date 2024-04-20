@@ -1,3 +1,4 @@
+use api::error::Error;
 use cli_table::{
     format::Justify, print_stdout, Cell, CellStruct, Color, Style, Table, TableStruct,
 };
@@ -8,15 +9,14 @@ pub fn print_entry(
     number: usize,
     password: Option<String>,
     verbose: bool,
-) -> Result<(), String> {
+) -> Result<(), Error> {
     let table = vec![format_entry(entry, number, password, verbose)]
         .table()
         .title(format_entry_title(verbose));
-    print_stdout(format_table(table)).map_err(|_| "Error displaying")?;
-    Ok(())
+    print_table(table)
 }
 
-pub fn print_entries(entries: Vec<entry::Model>, verbose: bool) -> Result<(), String> {
+pub fn print_entries(entries: Vec<entry::Model>, verbose: bool) -> Result<(), Error> {
     let empty = entries.is_empty();
     let table = entries
         .clone()
@@ -29,27 +29,24 @@ pub fn print_entries(entries: Vec<entry::Model>, verbose: bool) -> Result<(), St
     if empty {
         println!("No password entries. Create one with `mypass create`");
     } else {
-        print_stdout(format_table(table)).map_err(|_| "Error displaying")?;
+        print_table(table)?;
     }
+
     Ok(())
 }
 
-pub fn print_master(master: master::Model) -> Result<(), String> {
+pub fn print_master(master: master::Model) -> Result<(), Error> {
     let table = vec![format_master(master)]
         .table()
         .title(format_master_title());
-    print_stdout(format_table(table)).map_err(|_| "Error displaying")?;
-    Ok(())
+    print_table(table)
 }
 
-pub fn print_path(master: master::Model, path: String) -> Result<(), String> {
-    let mut title = format_master_title();
-    title.push("Path to data store".to_owned().cell());
-    let mut table = format_master(master);
-    table.push(path.cell());
-    let table = vec![table].table().title(title);
-    print_stdout(format_table(table)).map_err(|_| "Error displaying")?;
-    Ok(())
+pub fn print_path(path: String) -> Result<(), Error> {
+    let table = vec![vec![path.cell()]]
+        .table()
+        .title(vec!["Path to data store".to_owned().cell()]);
+    print_table(table)
 }
 
 fn format_entry(
@@ -121,4 +118,8 @@ fn format_master_title() -> Vec<CellStruct> {
 
 fn format_table(table: TableStruct) -> TableStruct {
     table.foreground_color(Some(Color::Rgb(136, 192, 205)))
+}
+
+fn print_table(table: TableStruct) -> Result<(), Error> {
+    print_stdout(format_table(table)).map_err(|_| "Error displaying".to_owned())
 }

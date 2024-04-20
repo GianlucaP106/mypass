@@ -2,24 +2,23 @@ use migration::{Migrator, MigratorTrait};
 use sea_orm::{Database, DatabaseConnection};
 use serde::{Deserialize, Serialize};
 use std::{
-    env,
     fs::{File, OpenOptions},
     io::{Read, Write},
 };
 
-use crate::util;
+use crate::{error::Error, util};
 
-pub async fn connect() -> Result<DatabaseConnection, String> {
+pub async fn connect() -> Result<DatabaseConnection, Error> {
     let path_to_db = get_path_to_db()?;
     let db_url = format!("sqlite://{}", path_to_db);
     let is_new = util::create_file(path_to_db.to_owned())?;
     let conn = Database::connect(db_url)
         .await
-        .map_err(|_| "Failed to connect to database")?;
+        .map_err(|_| "Failed to connect to data store")?;
     if is_new {
         Migrator::up(&conn, None)
             .await
-            .map_err(|_| "Failed to push migration to database")?;
+            .map_err(|_| "Failed to push migration to data store")?;
     }
     Ok(conn)
 }
@@ -29,8 +28,8 @@ pub struct Configuration {
     db: String,
 }
 
-pub fn get_path_to_db() -> Result<String, String> {
-    let home_dir: String = env::var("HOME").map_err(|_| "HOME env var not set.")?;
+pub fn get_path_to_db() -> Result<String, Error> {
+    let home_dir: String = util::get_home_env_var()?;
     let path_to_config = format!("{}/{}", home_dir, String::from(".mypass/config.json"));
     let is_new = util::create_file(path_to_config.to_owned())?;
     let mut file: File = OpenOptions::new()

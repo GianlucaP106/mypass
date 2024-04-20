@@ -1,29 +1,28 @@
 use crate::crypto;
+use crate::error::Error;
 use crate::persistence;
 use model::entities::master;
 use model::entities::prelude::Master;
 use sea_orm::{self, prelude::Uuid, ActiveModelTrait, ActiveValue::Set, EntityTrait};
 
-pub async fn get_master() -> Result<Option<master::Model>, String> {
+pub async fn get_master() -> Result<Option<master::Model>, Error> {
     let conn = persistence::connect().await?;
     Master::find()
         .all(&conn)
         .await
         .map_err(|_| "Failed to get master".to_owned())
         .map(|entries| entries.first().map(|t| t.to_owned()))
-
-    // The above using match
-    // match Master::find().all(&conn).await {
-    //     Ok(master_entries) => master_entries.first().map(|first| first.to_owned()),
-    //     Err(e) => {
-    //         panic!("{e}")
-    //     }
-    // }
 }
 
-pub async fn create_master(password: String) -> Result<master::Model, String> {
+pub async fn require_master() -> Result<master::Model, Error> {
+    get_master()
+        .await?
+        .ok_or("Master not configured. Please create a master key".to_owned())
+}
+
+pub async fn create_master(password: String) -> Result<master::Model, Error> {
     if get_master().await?.is_some() {
-        return Err("Master already configured".to_owned());
+        return Err("Master is already configured".to_owned());
     }
     let conn = persistence::connect().await?;
     let hashed_password = crypto::hash_password(password)?;
@@ -36,18 +35,19 @@ pub async fn create_master(password: String) -> Result<master::Model, String> {
     master.insert(&conn).await.map_err(|e| e.to_string())
 }
 
-pub async fn authenticate_master(master_password: String) -> Result<master::Model, String> {
-    let master = match get_master().await? {
-        Some(master) => master,
-        None => return Err("Master not configured. Please create a master key".to_owned()),
-    };
-    if crypto::verify_password(master_password, master.password.to_owned())? {
-        Ok(master)
-    } else {
-        Err("Invalid master password".to_owned())
-    }
+pub async fn authenticate_master(master_password: String) -> Result<master::Model, Error> {
+    let master = require_master().await?;
+    crypto::verify_password(master_password, master.password.to_owned()).and_then(
+        |is_authenticated| {
+            if is_authenticated {
+                Ok(master)
+            } else {
+                Err("Invalid master password".to_owned())
+            }
+        },
+    )
 }
 
-pub async fn is_master_configured() -> Result<bool, String> {
+pub async fn is_master_configured() -> Result<bool, Error> {
     Ok(get_master().await?.is_some())
 }

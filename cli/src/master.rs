@@ -1,6 +1,9 @@
 use model::entities::master;
 
-use crate::{util, view};
+use crate::{
+    util::{self, PrintError},
+    view,
+};
 
 pub struct AuthenticatedMaster {
     pub master: master::Model,
@@ -16,7 +19,7 @@ impl AuthenticatedMaster {
 pub async fn authenticate(master_password: String) -> Result<master::Model, ()> {
     let master = api::master::authenticate_master(master_password)
         .await
-        .map_err(|e| println!("{}", e))?;
+        .print_err()?;
     Ok(master)
 }
 
@@ -35,27 +38,16 @@ pub async fn create_master() -> Result<(), ()> {
     }
     let master = api::master::create_master(master_password)
         .await
-        .map_err(|e| println!("{}", e))?;
-    view::print_master(master).map_err(|e| println!("{}", e))?;
-    Ok(())
+        .print_err()?;
+    view::print_master(master).print_err()
 }
 
 pub async fn view_master() -> Result<(), ()> {
     let master = prompt_authenticate().await?;
-    view::print_master(master.master).map_err(|e| println!("{}", e))?;
-    Ok(())
+    view::print_master(master.master).print_err()
 }
 
 pub async fn view_path() -> Result<(), ()> {
-    let master = api::master::get_master()
-        .await
-        .map_err(|_| println!("Failed to retrieve master"))?
-        .unwrap();
-
-    let path = api::persistence::get_path_to_db()
-        .map_err(|_| println!("Failed to retrive path"))
-        .unwrap();
-
-    view::print_path(master, path).map_err(|e| println!("{}", e))?;
-    Ok(())
+    let path = api::persistence::get_path_to_db().print_err()?;
+    view::print_path(path).print_err()
 }
