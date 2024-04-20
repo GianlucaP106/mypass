@@ -17,7 +17,10 @@ pub fn print_entry(
 }
 
 pub fn print_entries(entries: Vec<entry::Model>, verbose: bool) -> Result<(), Error> {
-    let empty = entries.is_empty();
+    if entries.is_empty() {
+        println!("No password entries. Create one with `mypass create`");
+        return Ok(());
+    }
     let table = entries
         .clone()
         .iter()
@@ -26,12 +29,7 @@ pub fn print_entries(entries: Vec<entry::Model>, verbose: bool) -> Result<(), Er
         .table()
         .title(format_entry_title(verbose));
 
-    if empty {
-        println!("No password entries. Create one with `mypass create`");
-    } else {
-        print_table(table)?;
-    }
-
+    print_table(table)?;
     Ok(())
 }
 
@@ -77,6 +75,13 @@ fn format_entry(
     );
     entry_row.push(entry.url.to_owned().unwrap_or("None".to_owned()).cell());
     entry_row.push(
+        entry
+            .username
+            .to_owned()
+            .unwrap_or("None".to_owned())
+            .cell(),
+    );
+    entry_row.push(
         password
             .unwrap_or("**********".to_owned())
             .cell()
@@ -97,6 +102,7 @@ fn format_entry_title(verbose: bool) -> Vec<CellStruct> {
     title.push("Name".to_owned().cell());
     title.push("Description".to_owned().cell());
     title.push("URL".to_owned().cell());
+    title.push("Username".to_owned().cell());
     title.push("Password".to_owned().cell());
     title
 }
