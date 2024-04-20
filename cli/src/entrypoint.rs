@@ -17,7 +17,7 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum RootCommands {
-    /// View passwowrd entries
+    /// View password entries
     View {
         /// The number of the entry to view
         #[arg(short, long)]

@@ -49,7 +49,7 @@ mypass -h
 # Usage: mypass <COMMAND>
 #
 # Commands:
-#   view    View passwowrd entries
+#   view    View password entries
 #   create  Create a password entry
 #   update  Update a password entry
 #   delete  Delete a password entry
