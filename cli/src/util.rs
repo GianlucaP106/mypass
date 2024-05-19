@@ -3,10 +3,14 @@ use std::{fmt::Display, io::Write};
 use api::error::Error;
 
 pub fn get_master_password() -> Result<String, ()> {
-    get_password_with_prompt("Master Password: ")
+    get_password_with_prompt_print("Master Password: ")
 }
 
-pub fn get_password_with_prompt(prompt: &str) -> Result<String, ()> {
+pub fn get_password_with_prompt_print(prompt: &str) -> Result<String, ()> {
+    get_password_with_prompt(prompt).map_err(|_| println!("Password is required"))
+}
+
+pub fn get_password_with_prompt(prompt: &str) -> Result<String, Error> {
     rpassword::prompt_password(prompt)
         .map_err(|_| ())
         .and_then(|pass| {
@@ -16,7 +20,7 @@ pub fn get_password_with_prompt(prompt: &str) -> Result<String, ()> {
                 Ok(pass)
             }
         })
-        .map_err(|_| println!("Password is required"))
+        .map_err(|_| "Failed to prompt password".to_owned())
 }
 
 pub fn get_input(prompt: &str) -> Result<String, Error> {

@@ -32,7 +32,7 @@ pub async fn prompt_authenticate() -> Result<AuthenticatedMaster, ()> {
 
 pub async fn create_master() -> Result<(), ()> {
     let master_password = util::get_master_password()?;
-    let master_password2 = util::get_password_with_prompt("Retype Master Password: ")?;
+    let master_password2 = util::get_password_with_prompt_print("Retype Master Password: ")?;
     if master_password != master_password2 {
         println!("Passwords are not the same, cancelling.");
         return Err(());

@@ -81,7 +81,9 @@ pub async fn create_entry(
     let description = util::unwrap_or_input(description, enter_a("description").as_ref());
     let username = util::unwrap_or_input(username, enter_a("username").as_ref());
     let url = util::unwrap_or_input(url, enter_a("url").as_ref());
-    let password: String = util::get_password_with_prompt("Enter a password: ")?;
+    let password: String =
+        util::get_password_with_prompt("Enter a password (leave empty to generate): ")
+            .unwrap_or_else(|_| api::crypto::generate_password());
     let master: AuthenticatedMaster = prompt_authenticate().await?;
     let entry = api::entries::create_entry(
         master.password,
@@ -109,7 +111,7 @@ pub async fn create_many() -> Result<(), ()> {
         let description = util::get_input_required(&enter_a("description"));
         let username = get_input_required(&enter_a("username"));
         let url = util::get_input_required(&enter_a("url"));
-        let password: String = match util::get_password_with_prompt("Enter a password: ") {
+        let password: String = match util::get_password_with_prompt_print("Enter a password: ") {
             Ok(p) => p,
             Err(_) => continue,
         };
@@ -153,7 +155,7 @@ pub async fn update_entry(
         .ok()
         .and_then(|p| if p.trim().is_empty() { None } else { Some(p) });
     let password: Option<String> = if let Some(p) = password {
-        let retyped = util::get_password_with_prompt("Retype new password: ")?;
+        let retyped = util::get_password_with_prompt_print("Retype new password: ")?;
         if retyped != p {
             println!("Passwords must be the same");
             return Err(());

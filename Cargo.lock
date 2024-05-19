@@ -170,6 +170,7 @@ dependencies = [
  "csv",
  "migration",
  "model",
+ "rand",
  "sea-orm",
  "serde",
  "serde_json",
