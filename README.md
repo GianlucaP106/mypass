@@ -1,7 +1,7 @@
 # MyPass
 ### A simple, secure and user friendly CLI password manager
 
-<br>
+https://github.com/GianlucaP106/mypass/assets/93693693/a2a8fb88-ab2a-4130-aa4d-72f3140a9809
 
 # Description
 Simple and user friendly CLI password manager. Uses good standards for encryption but not audited so use at your own risk. 
