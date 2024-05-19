@@ -7,6 +7,7 @@ use argon2::{
     password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2,
 };
+use rand::{distributions::Alphanumeric, Rng};
 
 use crate::error::Error;
 
@@ -102,4 +103,13 @@ pub fn verify_password(password: String, hash: String) -> Result<bool, Error> {
     Ok(Argon2::default()
         .verify_password(password.as_bytes(), &parsed_hash)
         .is_ok())
+}
+
+pub fn generate_password() -> String {
+    let password: String = rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(32)
+        .map(char::from)
+        .collect();
+    password
 }
