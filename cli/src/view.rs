@@ -60,20 +60,20 @@ fn format_entry(
     };
     let mut entry_row: Vec<CellStruct> = Vec::new();
     entry_row.push(number.to_string().cell().justify(Justify::Center));
+    entry_row.push(entry.name.to_owned().cell());
     if verbose {
         entry_row.push(entry.id.to_owned().cell());
         entry_row.push(entry.created_date.cell());
         entry_row.push(entry.modified_date.cell());
+        entry_row.push(
+            entry
+                .description
+                .to_owned()
+                .unwrap_or("None".to_owned())
+                .cell(),
+        );
+        entry_row.push(entry.url.to_owned().unwrap_or("None".to_owned()).cell());
     }
-    entry_row.push(entry.name.to_owned().cell());
-    entry_row.push(
-        entry
-            .description
-            .to_owned()
-            .unwrap_or("None".to_owned())
-            .cell(),
-    );
-    entry_row.push(entry.url.to_owned().unwrap_or("None".to_owned()).cell());
     entry_row.push(
         entry
             .username
@@ -94,14 +94,14 @@ fn format_entry(
 fn format_entry_title(verbose: bool) -> Vec<CellStruct> {
     let mut title: Vec<CellStruct> = Vec::new();
     title.push("Entry number".to_owned().cell());
+    title.push("Name".to_owned().cell());
     if verbose {
         title.push("ID".to_owned().cell());
         title.push("Created Date".to_owned().cell());
         title.push("Last Modified Date".to_owned().cell());
+        title.push("Description".to_owned().cell());
+        title.push("URL".to_owned().cell());
     }
-    title.push("Name".to_owned().cell());
-    title.push("Description".to_owned().cell());
-    title.push("URL".to_owned().cell());
     title.push("Username".to_owned().cell());
     title.push("Password".to_owned().cell());
     title
