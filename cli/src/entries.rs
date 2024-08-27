@@ -95,7 +95,7 @@ pub async fn create_entry(
     )
     .await
     .print_err()?;
-    view::print_entry(entry, 1, None, true).print_err()?;
+    view::print_entry(entry, 1, None, false).print_err()?;
     Ok(())
 }
 
