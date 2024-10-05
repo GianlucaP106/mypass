@@ -1,4 +1,4 @@
-use mcli::run;
+use cli::run;
 
 #[tokio::main]
 async fn main() {
