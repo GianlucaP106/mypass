@@ -1,12 +1,17 @@
-workspace = { members = ["api", "cli", "migration", "model"] }
+workspace = { members = ["api", "mcli", "migration", "model"] }
 [package]
 name = "mypass"
-version = "0.4.0"
+version = "0.4.1"
 edition = "2021"
+description = "A simple, secure and user friendly CLI password manager"
+license-file = "LICENSE"
+homepage = "https://github.com/GianlucaP106/mypass"
+repository = "https://github.com/GianlucaP106/mypass"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-mypass_cli = { path = "./cli" }
-api = { path = "./api" }
+mcli = { path = "./mcli", version = "*" }
+api = { path = "./api", version = "*" }
 tokio = { version = "1.29.0", features = ["full"] }
