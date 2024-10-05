@@ -9,7 +9,7 @@ use crate::{
 };
 
 #[derive(Parser)]
-#[command(version, about, long_about)]
+#[command(version("0.4.1"), about, long_about)]
 struct Cli {
     #[command(subcommand)]
     command: RootCommands,

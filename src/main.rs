@@ -1,4 +1,4 @@
-use mypass_cli::run;
+use mcli::run;
 
 #[tokio::main]
 async fn main() {
