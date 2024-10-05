@@ -658,6 +658,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1462739cb27611015575c0c11df5df7601141071f07518d56fcc1be504cbec97"
 
 [[package]]
+name = "cli"
+version = "0.1.0"
+dependencies = [
+ "api",
+ "clap",
+ "cli-clipboard",
+ "cli-table",
+ "model",
+ "rpassword",
+ "tokio",
+]
+
+[[package]]
 name = "cli-clipboard"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1468,19 +1481,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "mcli"
-version = "0.1.0"
-dependencies = [
- "api",
- "clap",
- "cli-clipboard",
- "cli-table",
- "model",
- "rpassword",
- "tokio",
-]
-
-[[package]]
 name = "md-5"
 version = "0.10.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1552,7 +1552,7 @@ name = "mypass"
 version = "0.4.1"
 dependencies = [
  "api",
- "mcli",
+ "cli",
  "tokio",
 ]
 

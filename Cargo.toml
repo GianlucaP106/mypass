@@ -1,4 +1,4 @@
-workspace = { members = ["api", "mcli", "migration", "model"] }
+workspace = { members = ["api", "cli", "migration", "model"] }
 [package]
 name = "mypass"
 version = "0.4.1"
@@ -12,6 +12,6 @@ readme = "README.md"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-mcli = { path = "./mcli", version = "*" }
+cli = { path = "./cli", version = "*" }
 api = { path = "./api", version = "*" }
 tokio = { version = "1.29.0", features = ["full"] }
