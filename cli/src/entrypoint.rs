@@ -166,7 +166,11 @@ enum CreateCommands {
 #[derive(Subcommand)]
 enum ConfigCommands {
     /// View Path to data store
-    Path,
+    Path {
+        /// Copy db file path to clipboard
+        #[arg(short, long)]
+        copy: bool,
+    },
     /// Configure or view master
     Master,
 }
@@ -255,8 +259,8 @@ pub async fn run() {
             delete_entry(number).await.ok();
         }
         RootCommands::Config { commands } => match commands {
-            ConfigCommands::Path => {
-                view_path().await.ok();
+            ConfigCommands::Path { copy } => {
+                view_path(copy).await.ok();
             }
             ConfigCommands::Master => {
                 let is_master_configured = api::master::is_master_configured()

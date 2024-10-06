@@ -48,7 +48,10 @@ pub async fn view_master() -> Result<(), ()> {
     view::print_master(master.master).print_err()
 }
 
-pub async fn view_path() -> Result<(), ()> {
+pub async fn view_path(copy: bool) -> Result<(), ()> {
     let path = api::persistence::get_path_to_db().print_err()?;
+    if copy {
+        util::copy_to_clipboard(path.clone()).print_err()?;
+    }
     view::print_path(path).print_err()
 }
