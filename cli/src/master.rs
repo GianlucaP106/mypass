@@ -1,4 +1,4 @@
-use model::entities::master;
+use model::entities::master::{self};
 
 use crate::{
     util::{self, PrintError},
@@ -49,9 +49,16 @@ pub async fn view_master() -> Result<(), ()> {
 }
 
 pub async fn view_path(copy: bool) -> Result<(), ()> {
-    let path = api::persistence::get_path_to_db().print_err()?;
+    let path = api::configuration::get_db_path().print_err()?;
     if copy {
         util::copy_to_clipboard(path.clone()).print_err()?;
     }
     view::print_path(path).print_err()
+}
+
+pub async fn move_db() -> Result<(), ()> {
+    let new_path = util::get_input_required("Enter new db file path: ")
+        .ok_or(())
+        .map_err(|_| println!("File path is required"))?;
+    api::configuration::move_db(new_path.clone()).print_err()
 }

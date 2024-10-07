@@ -5,7 +5,7 @@ use crate::{
         create_entry, create_many, delete_entry, export_entries, import_entries, update_entry,
         view_all_entries, view_entry,
     },
-    master::{create_master, view_master, view_path},
+    master::{create_master, move_db, view_master, view_path},
 };
 
 #[derive(Parser)]
@@ -171,6 +171,10 @@ enum ConfigCommands {
         #[arg(short, long)]
         copy: bool,
     },
+
+    /// Move the db file to a new path
+    Move,
+
     /// Configure or view master
     Master,
 }
@@ -274,6 +278,9 @@ pub async fn run() {
                         create_master().await.ok();
                     }
                 }
+            }
+            ConfigCommands::Move => {
+                move_db().await.ok();
             }
         },
     };
