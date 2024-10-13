@@ -5,8 +5,8 @@ use sea_orm::{self, prelude::Uuid, ActiveModelTrait, ActiveValue::Set, EntityTra
 
 use crate::error::Error;
 use crate::{
+    configuration,
     crypto::{self},
-    persistence,
 };
 use crate::{master, util};
 
@@ -18,7 +18,7 @@ pub async fn create_entry(
     password: String,
     url: Option<String>,
 ) -> Result<entry::Model, Error> {
-    let con = persistence::connect().await?;
+    let con = configuration::connect().await?;
     let master = master::require_master().await?;
     let id = Uuid::new_v4().to_string();
 
@@ -59,7 +59,7 @@ pub async fn update_entry(
     url: Option<String>,
     passwords: Option<(String, String)>,
 ) -> Result<entry::Model, Error> {
-    let con = persistence::connect().await?;
+    let con = configuration::connect().await?;
     let err = "Error modifying entry";
     let mut entry: entry::ActiveModel = Entry::find_by_id(entry_id.to_owned())
         .one(&con)
@@ -115,7 +115,7 @@ pub async fn update_entry(
 }
 
 pub async fn delete_entry(entry_id: String) -> Result<(), Error> {
-    let conn = persistence::connect().await?;
+    let conn = configuration::connect().await?;
     let err = "Failed to delete entry";
     let entry = Entry::find_by_id(entry_id)
         .one(&conn)
@@ -132,7 +132,7 @@ pub async fn delete_entry(entry_id: String) -> Result<(), Error> {
 }
 
 pub async fn get_entry(entry_id: String) -> Result<entry::Model, Error> {
-    let conn = persistence::connect().await?;
+    let conn = configuration::connect().await?;
     let err = "Failed to fetch entry";
     Entry::find_by_id(entry_id)
         .one(&conn)
@@ -142,7 +142,7 @@ pub async fn get_entry(entry_id: String) -> Result<entry::Model, Error> {
 }
 
 pub async fn get_all_entries() -> Result<Vec<entry::Model>, Error> {
-    let con = persistence::connect().await?;
+    let con = configuration::connect().await?;
     Entry::find()
         .all(&con)
         .await
