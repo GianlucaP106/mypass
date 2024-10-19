@@ -3,7 +3,7 @@ use model::entities::entry;
 
 use crate::{
     master::{prompt_authenticate, AuthenticatedMaster},
-    util::{self, get_input_required, PrintError},
+    util::{self, input, PrintError},
     view,
 };
 
@@ -107,10 +107,10 @@ pub async fn create_many() -> Result<(), ()> {
         println!("\n");
         let enter_a =
             |name: &str| -> String { format!("Enter a {} (skip to leave blank): ", name) };
-        let name = util::get_input_required(&enter_a("name"));
-        let description = util::get_input_required(&enter_a("description"));
-        let username = get_input_required(&enter_a("username"));
-        let url = util::get_input_required(&enter_a("url"));
+        let name = util::input(&enter_a("name"));
+        let description = util::input(&enter_a("description"));
+        let username = input(&enter_a("username"));
+        let url = util::input(&enter_a("url"));
         let password: String = match util::get_password_with_prompt_print("Enter a password: ") {
             Ok(p) => p,
             Err(_) => continue,

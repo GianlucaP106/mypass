@@ -50,6 +50,7 @@ pub async fn view_master() -> Result<(), ()> {
 
 pub async fn view_path(copy: bool) -> Result<(), ()> {
     let path = api::configuration::get_db_path().print_err()?;
+    let path = path.to_string_lossy().into_owned();
     if copy {
         util::copy_to_clipboard(path.clone()).print_err()?;
     }
@@ -57,8 +58,17 @@ pub async fn view_path(copy: bool) -> Result<(), ()> {
 }
 
 pub async fn move_db() -> Result<(), ()> {
-    let new_path = util::get_input_required("Enter new db file path: ")
+    let new_path = util::input("Enter new db file path: ")
         .ok_or(())
         .map_err(|_| println!("File path is required"))?;
     api::configuration::move_db(new_path.clone()).print_err()
+}
+
+pub async fn set_path(path: Option<String>) -> Result<(), ()> {
+    let path = path
+        .or_else(|| util::input("New DB path"))
+        .ok_or("New DB path is required".to_string())
+        .print_err()?;
+
+    api::configuration::set_db_path(path).print_err()
 }

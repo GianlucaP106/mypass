@@ -23,7 +23,7 @@ pub fn get_password_with_prompt(prompt: &str) -> Result<String, Error> {
         .map_err(|_| "Failed to prompt password".to_owned())
 }
 
-pub fn get_input(prompt: &str) -> Result<String, Error> {
+fn prompt_input(prompt: &str) -> Result<String, Error> {
     print!("{}", prompt);
     let err = "Failed to get input from console";
     std::io::stdout().flush().map_err(|_| err)?;
@@ -32,8 +32,8 @@ pub fn get_input(prompt: &str) -> Result<String, Error> {
     Ok(line.trim().to_owned())
 }
 
-pub fn get_input_required(prompt: &str) -> Option<String> {
-    get_input(prompt).ok().and_then(|input| {
+pub fn input(prompt: &str) -> Option<String> {
+    prompt_input(prompt).ok().and_then(|input| {
         if input.trim().is_empty() {
             None
         } else {
@@ -43,7 +43,7 @@ pub fn get_input_required(prompt: &str) -> Option<String> {
 }
 
 pub fn unwrap_or_input(item: Option<String>, prompt: &str) -> Option<String> {
-    item.or_else(|| get_input_required(prompt))
+    item.or_else(|| input(prompt))
 }
 
 pub fn unwrap_or_input_number(
@@ -52,7 +52,7 @@ pub fn unwrap_or_input_number(
     err_msg: &str,
 ) -> Result<usize, ()> {
     item.or_else(|| {
-        get_input(prompt)
+        prompt_input(prompt)
             .print_err()
             .ok()
             .and_then(|val| val.parse::<usize>().ok())
