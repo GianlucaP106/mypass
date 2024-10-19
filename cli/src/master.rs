@@ -66,7 +66,7 @@ pub async fn move_db() -> Result<(), ()> {
 
 pub async fn set_path(path: Option<String>) -> Result<(), ()> {
     let path = path
-        .or_else(|| util::input("New DB path"))
+        .or_else(|| util::input("New DB path: "))
         .ok_or("New DB path is required".to_string())
         .print_err()?;
 
