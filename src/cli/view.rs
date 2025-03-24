@@ -1,8 +1,8 @@
-use api::error::Error;
+use super::super::api::error::Error;
+use super::super::database::entities::{entry, master};
 use cli_table::{
     format::Justify, print_stdout, Cell, CellStruct, Color, Style, Table, TableStruct,
 };
-use model::entities::{entry, master};
 
 pub fn print_entry(
     entry: entry::Model,

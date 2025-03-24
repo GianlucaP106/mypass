@@ -9,7 +9,7 @@ use argon2::{
 };
 use rand::{distributions::Alphanumeric, Rng};
 
-use crate::error::Error;
+use super::error::Error;
 
 pub struct FixedLengthKey {
     value: Vec<u8>,
@@ -29,12 +29,6 @@ impl FixedLengthKey {
     pub fn shrink_from(value: String, size: usize) -> FixedLengthKey {
         assert!(value.len() >= size);
         let value = value.as_bytes();
-        let value = &value[0..size];
-        FixedLengthKey::new(value.to_vec(), size)
-    }
-
-    pub fn shrink(value: Vec<u8>, size: usize) -> FixedLengthKey {
-        assert!(value.len() >= size);
         let value = &value[0..size];
         FixedLengthKey::new(value.to_vec(), size)
     }

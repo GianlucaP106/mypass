@@ -1,8 +1,8 @@
-use crate::configuration;
-use crate::crypto;
-use crate::error::Error;
-use model::entities::master;
-use model::entities::prelude::Master;
+use super::super::database::entities::master;
+use super::super::database::entities::prelude::Master;
+use super::configuration;
+use super::crypto;
+use super::error::Error;
 use sea_orm::{self, prelude::Uuid, ActiveModelTrait, ActiveValue::Set, EntityTrait};
 
 pub async fn get_master() -> Result<Option<master::Model>, Error> {

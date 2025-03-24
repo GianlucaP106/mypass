@@ -1,11 +1,15 @@
 use clap::{Parser, Subcommand};
 
-use crate::{
+use crate::api;
+
+use super::{
     entries::{
         create_entry, create_many, delete_entry, export_entries, import_entries, update_entry,
         view_all_entries, view_entry,
     },
     master::{create_master, move_db, set_path, view_master, view_path},
+    util::PrintError,
+    view,
 };
 
 #[derive(Parser)]
@@ -229,7 +233,12 @@ pub async fn run() {
                     println!("You may only specify the password or copy option with the number option `-n`");
                     return;
                 } else {
-                    view_all_entries(verbose).await.ok();
+                    async move {
+                        let entries = api::entries::get_all_entries().await.print_err()?;
+                        view::print_entries(entries, verbose).print_err()
+                    }
+                    .await
+                    .ok();
                 }
             }
         },
@@ -300,14 +309,17 @@ async fn enforce_configured_master(cli: &Cli) -> Result<(), ()> {
     let is_master_configured = api::master::is_master_configured()
         .await
         .map_err(|e| println!("{}", e))?;
-    // TODO: Btter way to do this
-    if let RootCommands::Config {
-        commands: ConfigCommands::Master,
-    } = cli.command
-    {
-    } else if !is_master_configured {
-        println!("Master is not configured. Please create a master key. (`mypass config master`)");
-        return Err(());
+
+    match cli.command {
+        RootCommands::Config {
+            commands: ConfigCommands::Master,
+        } => Ok(()),
+        _ if !is_master_configured => {
+            println!(
+                "Master is not configured. Please create a master key. (`mypass config master`)"
+            );
+            Err(())
+        }
+        _ => Ok(()),
     }
-    Ok(())
 }

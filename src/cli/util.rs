@@ -1,6 +1,6 @@
 use std::{fmt::Display, io::Write};
 
-use api::error::Error;
+use super::super::api::error::Error;
 
 pub fn get_master_password() -> Result<String, ()> {
     get_password_with_prompt_print("Master Password: ")

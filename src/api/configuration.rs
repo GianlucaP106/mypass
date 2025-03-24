@@ -1,4 +1,4 @@
-use migration::{Migrator, MigratorTrait};
+use super::super::database::migration::{Migrator, MigratorTrait};
 use sea_orm::{Database, DatabaseConnection};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -8,7 +8,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::{error::Error, util};
+use super::{error::Error, util};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Configuration {

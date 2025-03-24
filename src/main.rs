@@ -1,6 +1,10 @@
-use cli::run;
+// use cli::run;
+
+mod api;
+mod cli;
+mod database;
 
 #[tokio::main]
 async fn main() {
-    run().await
+    cli::run().await
 }

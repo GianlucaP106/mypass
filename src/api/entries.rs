@@ -1,14 +1,14 @@
-use model::entities::prelude::Entry;
-use model::entities::*;
+use super::super::database::entities::prelude::Entry;
+use super::super::database::entities::*;
 use sea_orm::IntoActiveModel;
 use sea_orm::{self, prelude::Uuid, ActiveModelTrait, ActiveValue::Set, EntityTrait};
 
-use crate::error::Error;
-use crate::{
+use super::error::Error;
+use super::{
     configuration,
     crypto::{self},
 };
-use crate::{master, util};
+use super::{master, util};
 
 pub async fn create_entry(
     master_password: String,
@@ -129,16 +129,6 @@ pub async fn delete_entry(entry_id: String) -> Result<(), Error> {
         .await
         .map_err(|_| err.to_owned())
         .map(|_| ())
-}
-
-pub async fn get_entry(entry_id: String) -> Result<entry::Model, Error> {
-    let conn = configuration::connect().await?;
-    let err = "Failed to fetch entry";
-    Entry::find_by_id(entry_id)
-        .one(&conn)
-        .await
-        .map_err(|_| err)?
-        .ok_or(err.to_owned())
 }
 
 pub async fn get_all_entries() -> Result<Vec<entry::Model>, Error> {

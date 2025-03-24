@@ -1,6 +1,6 @@
-use model::entities;
+use super::super::database::entities;
 
-use crate::{
+use super::{
     crypto,
     entries::{self, create_entry},
     error::Error,

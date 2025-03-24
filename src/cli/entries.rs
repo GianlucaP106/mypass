@@ -1,9 +1,12 @@
-use api::crypto;
-use model::entities::entry;
-
 use crate::{
+    api::{self, crypto},
+    cli::util::input,
+    database::entities::entry,
+};
+
+use super::{
     master::{prompt_authenticate, AuthenticatedMaster},
-    util::{self, input, PrintError},
+    util::{self, PrintError},
     view,
 };
 

@@ -1,4 +1,4 @@
-workspace = { members = ["api", "cli", "migration", "model"] }
+# workspace = { members = ["api", "cli", "migration", "model"] }
 [package]
 name = "mypass"
 version = "0.4.1"
@@ -12,6 +12,37 @@ readme = "README.md"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-cli = { path = "./cli", version = "*" }
-api = { path = "./api", version = "*" }
-tokio = { version = "1.29.0", features = ["full"] }
+# cli = { path = "./cli", version = "*" }
+# api = { path = "./api", version = "*" }
+tokio = { version = "1.29.0", features = ["full", "macros"] }
+async-std = { version = "1", features = ["attributes", "tokio1"] }
+aes-gcm = "0.10.3"
+argon2 = "0.5.3"
+url = "2.5.0"
+csv = "1.3.0"
+serde = "1.0.197"
+serde_json = "1.0"
+chrono = "0.4.37"
+rand = "0.8.5"
+clap = { version = "4.5.3", features = ["derive"] }
+rpassword = "7.3.1"
+cli-table = "0.4.7"
+cli-clipboard = "0.4.0"
+
+[dependencies.sea-orm]
+version = "0.12.4"                                 # sea-orm version
+features = ["sqlx-sqlite", "runtime-tokio-rustls"]
+
+[dependencies.sea-orm-migration]
+version = "0.12.0"
+features = [
+    # Enable at least one `ASYNC_RUNTIME` and `DATABASE_DRIVER` feature if you want to run migration via CLI.
+    # View the list of supported features at https://www.sea-ql.org/SeaORM/docs/install-and-config/database-and-async-runtime.
+    # e.g.
+    "runtime-tokio-rustls", # `ASYNC_RUNTIME` feature
+    "sqlx-sqlite",          # `DATABASE_DRIVER` feature
+]
+
+[dependencies.uuid]
+version = "*"
+features = ["v4"]
